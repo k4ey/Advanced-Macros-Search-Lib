@@ -1,121 +1,188 @@
-local Finder = require('finder')
-log(Finder)
--- examples:
-log(Finder.advancedSearch("all",Finder.checks.byAmount, {
-    amount = 10,
-    amountShouldBe = "equal"
-}, true))
+local Finder = run('finder.lua')
 
 
--- finds slots that have 10 items with id minecraft:dirt and name (case - insensitive) that contains word "podzo"
-log(Finder.advancedSearch("all",{
-    Finder.checks.byAmount, Finder.checks.byName, Finder.checks.byId
-},
+log(Finder.advancedSearch(
 {
-    amount = 10,
-    amountShouldBe = "equal",
-
-    name = "podzo",
-    ignoreCase = true,
-
-    id = "dirt",
-    insertSuffix = true,
-
-    exact = {
-        byName = false,
-        byId = true
-    }
-},
-true))
-
-
--- finds slots inside of a shulkerbox that contain items with name that has "d" in them, id equal to "minecraft:dirt" and amount equal to 10
-log(Finder.advancedShulkerSearch(openInventory().getSlot(10),
-{
-    Finder.checks.nbt.byName, Finder.checks.nbt.byId, Finder.checks.nbt.byAmount
-},
-{
-    name = "d",
-    ignoreCase = true,
-
-    id = "dirt",
-    insertSuffix = true,
-
-    amount = 10,
-    amountShouldBe = "equal",
-    exact = {
-        byName = false
-    }
-},true))
-
-log(Finder.advancedSearch("all",{
-    Finder.checks.byName, Finder.checks.byId, Finder.checks.byContainer
-},
-{
-    name = "shalker",
-    ignoreCase = true,
-
-    id = "white_shulker_box",
-    insertSuffix = true,
-
-
-    containerArgs = {
-        checkFunctions = {Finder.checks.nbt.byName, Finder.checks.nbt.byId, Finder.checks.nbt.byAmount}, -- containers should use nbt functions - they have different paths than normal items
-
-        amountOfMatches = 3, -- just like byAmount but checks whether the amount of items with given criteria is inside the shulkerbox
-        amountOfMatchesShouldBe = "equal",
-
-        name = "podzol", -- this function will break most of the time, as items in shulkerboxes do not have names
-        ignoreCase = true,
-
-        id = "dirt",
-        insertSuffix = true,
-
-        amount = 10,
-        amountShouldBe = "equal",
-
-        exact = {
-            byName = false
+    {
+        checkFunction = Finder.checks.byAmount,
+        functionArgs = {
+            passValue = 2,
+            amount = 10,
+            amountShouldBe = "equal"
         }
-
-
+    },
+    {
+        checkFunction = Finder.checks.byName,
+        functionArgs = {
+            passValue = 4,
+            name = "podzo",
+            ignoreCase = true,
+            exact = true
+        }
+    },
+    {
+        checkFunction = Finder.checks.byId,
+        functionArgs = {
+            passValue = 1,
+            id = "dirt",
+            insertSuffix = true,
+            exact = true
+        }
     }
-
-},true))
-
-
--- this will find all slots with items of id "minecraft:white_shulker_box" that have "shalker" declared as their name (ignores case), and inside of them are exactly 3 slots with 1 dirt block each called: "d"
-log(Finder.advancedSearch("all",{
-    Finder.checks.byName, Finder.checks.byId, Finder.checks.byContainer
 },
 {
-    name = "shalker",
-    ignoreCase = true,
+    minimalPasses = 7,
+    slots = "all",
+    findMultiple = true,
+}
+))
 
-    id = "white_shulker_box",
-    insertSuffix = true,
-
-
-    containerArgs = {
-        checkFunctions = {Finder.checks.nbt.byName, Finder.checks.nbt.byId, Finder.checks.nbt.byAmount}, -- containers should use nbt functions - they have different paths than normal items
-
-        amountOfMatches = 3, -- just like byAmount but checks whether the amount of items with given criteria is inside the shulkerbox
-        amountOfMatchesShouldBe = "equal",
-
-        name = "d", -- this function will break most of the time, as items in shulkerboxes do not have names
-        ignoreCase = true,
-
-        id = "dirt",
-        insertSuffix = true,
-
-        amount = 1,
-        amountShouldBe = "equal",
-
-        exact = {
-            byName = false
+local shulkerSearchChecks = {
+    {
+        checkFunction = Finder.checks.nbt.byAmount,
+        functionArgs = {
+            amount = 10,
+            amountShouldBe = "equal"
         }
+    },
+    {
+        checkFunction = Finder.checks.nbt.byId,
+        functionArgs = {
+            id = "stone",
+            insertSuffix = true,
+            exact = false
+        }
+    },
+}
+local shulkerSearchArgs = {
+    findMultiple = true,
+}
 
+log(Finder.advancedSearch(
+{
+    {
+        checkFunction = Finder.checks.byContainer,
+        functionArgs = {
+            checks = shulkerSearchChecks,
+            args = shulkerSearchArgs,
+            minimalShulkerMatches = 6,
+            minimalShulkerMatchesShouldBe= "more",
+        }
+    },
+    {
+        checkFunction = Finder.checks.byContainer,
+        functionArgs = {
+            checks = shulkerSearchChecks,
+            args = shulkerSearchArgs,
+            minimalShulkerMatches = 6,
+            minimalShulkerMatchesShouldBe= "equal",
+        }
+    },
+    {
+        checkFunction = Finder.checks.byName,
+        functionArgs = {
+            name = "shalker",
+            ignoreCase = true,
+            exact = true
+        }
+    },
+},
+{
+    slots = "all",
+    findMultiple = true,
+    minimalPasses = 2
+}
+))
 
-    }
+local shulkerSearchChecks = {
+    {
+        checkFunction = Finder.checks.nbt.byAmount,
+        functionArgs = {
+            amount = 64,
+            amountShouldBe = "equal"
+        }
+    },
+    {
+        checkFunction = Finder.checks.nbt.byId,
+        functionArgs = {
+            id = "end_crystal",
+            insertSuffix = true,
+            exact = true
+        }
+    },
+}
+local shulkerSearchArgs = {
+    findMultiple = true,
+}
 
-},true))
+Finder.advancedSearch(
+{
+    {
+        checkFunction = Finder.checks.byContainer,
+        functionArgs = {
+            checks = shulkerSearchChecks,
+            args = shulkerSearchArgs,
+            minimalShulkerMatches = 2,
+            minimalShulkerMatchesShouldBe= "equal",
+        }
+    },
+    {
+        checkFunction = Finder.checks.byName,
+        functionArgs = {
+            name = "pvp",
+            ignoreCase = true,
+            exact = false
+        }
+    },
+},
+{
+    slots = "all",
+    findMultiple = true
+}
+)
+local shulkerSearchChecks = {
+    {
+        checkFunction = Finder.checks.nbt.byAmount,
+        functionArgs = {
+            amount = 64,
+            amountShouldBe = "equal"
+        }
+    },
+    {
+        checkFunction = Finder.checks.nbt.byId,
+        functionArgs = {
+            id = "end_crystal",
+            insertSuffix = true,
+            exact = true
+        }
+    },
+}
+local shulkerSearchArgs = {
+    findMultiple = true,
+}
+
+log(Finder.advancedSearch(
+{
+    {
+        checkFunction = Finder.checks.byContainer,
+        functionArgs = {
+            checks = shulkerSearchChecks,
+            args = shulkerSearchArgs,
+            minimalShulkerMatches = 5,
+            minimalShulkerMatchesShouldBe= "equal",
+        }
+    },
+    {
+        checkFunction = Finder.checks.byName,
+        functionArgs = {
+            name = "cristal",
+            ignoreCase = true,
+            exact = false
+        }
+    },
+},
+{
+    slots = "all",
+    findMultiple = true
+}
+))
